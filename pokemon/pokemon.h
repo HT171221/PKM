@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -23,14 +24,20 @@ enum class StatusCondition {
 	BURN,
 	FREEZE,
 	PARALYSIS,
-	POISON
+	POISON,
+	SLEEP
 };
+
+std::ostream& operator << (std::ostream& out, const BasicType type);
+
+std::ostream& operator << (std::ostream& out, const StatusCondition status);
+
 
 class Pokemon {
 private:
 
 	std::string pokemonName;
-	int maxHitPoins;
+	int maxHitPoints;
 	int currentHitPoints;
 	int attack;
 	int defense;
@@ -45,7 +52,7 @@ private:
 public:
 
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type);
-	void SetEffect(void (*Effect)(Pokemon&));
+	void SetEffect(void (*effect)(Pokemon&));
 	void RunEffect(Pokemon& pokemon);
 	bool CanRunEffect();
 	void ShowStats();
