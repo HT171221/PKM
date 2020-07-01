@@ -48,7 +48,7 @@ private:
 	BasicType type;
 	StatusCondition statusCondition;
 	void(*effect)(Pokemon&);
-
+	friend class User;
 public:
 
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type);
@@ -56,7 +56,7 @@ public:
 	void RunEffect(Pokemon& pokemon);
 	bool CanRunEffect();
 	void ShowStats();
-
+	void ShowName();
 	friend class Effect;
 };
 
@@ -73,8 +73,12 @@ private:
 	int numberOfPokemons;
 	std::vector <Pokemon> listPickedPokemons;
 	Pokemon currentPickedPokemon;
-
-
+	friend class Pokemon;
+	friend class GameManager;
+public:
+	void GetName_PokemonNumber();
+	void Push_Pokemon();
+	void Pick_Pokemon();
 };
 
 class GameManager {

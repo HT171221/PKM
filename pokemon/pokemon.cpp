@@ -86,6 +86,21 @@ void Pokemon::ShowStats() {
 	std::cout << "Type: " << this->type << std::endl;
 	std::cout << "Status: " << this->statusCondition << std::endl;
 }
+void Pokemon::ShowName() {
+	std::cout << this->pokemonName<< " ("<< this->type<<")\t";
+}
+void User::GetName_PokemonNumber() {
+	std::cout << "Nhap ten nguoi choi: ";
+	std::cin >> userName;
+	
+	do {
+		std::cout << "Nhap so luong Pokemon (1-6): ";
+		std::cin >> numberOfPokemons;
+	} while ((numberOfPokemons <= 1) || (numberOfPokemons >= 6));
 
+}
+void User::Pick_Pokemon() {
+	std::cout << "Chon Pokemon ra tran: ";
 
+}
 
