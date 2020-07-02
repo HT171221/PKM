@@ -34,8 +34,7 @@ std::ostream& operator << (std::ostream& out, const StatusCondition status);
 
 
 class Pokemon {
-private:
-
+public:
 	std::string pokemonName;
 	int maxHitPoints;
 	int currentHitPoints;
@@ -49,8 +48,8 @@ private:
 	StatusCondition statusCondition;
 	void(*effect)(Pokemon&);
 	friend class User;
-public:
 
+public:
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type);
 	void SetEffect(void (*effect)(Pokemon&));
 	void RunEffect(Pokemon& pokemon);
@@ -68,20 +67,26 @@ public:
 
 class User {
 private:
-
 	std::string userName;
 	int numberOfPokemons;
 	std::vector <Pokemon> listPickedPokemons;
 	Pokemon currentPickedPokemon;
+
+public:
+	void ShowListPokemon();
+	void Pick_Current_Pokemon();
+	void GetUsername(std::string userName);
+
 	friend class Pokemon;
 	friend class GameManager;
-public:
-	void GetName_PokemonNumber();
-	void Push_Pokemon();
-	void Pick_Pokemon();
 };
 
 class GameManager {
+private:
+	std::vector <Pokemon> Pokedex;
 
-
+public:
+	void GeneratePokedex(std::vector <Pokemon> Pokedex);
+	void ShowPokedex();
+	void Run();
 };

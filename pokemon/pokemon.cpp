@@ -86,21 +86,48 @@ void Pokemon::ShowStats() {
 	std::cout << "Type: " << this->type << std::endl;
 	std::cout << "Status: " << this->statusCondition << std::endl;
 }
+
 void Pokemon::ShowName() {
-	std::cout << this->pokemonName<< " ("<< this->type<<")\t";
+	std::cout << this->pokemonName<< " ("<< this->type<<")";
 }
-void User::GetName_PokemonNumber() {
-	std::cout << "Nhap ten nguoi choi: ";
-	std::cin >> userName;
+
+void User::ShowListPokemon() {
 	
-	do {
-		std::cout << "Nhap so luong Pokemon (1-6): ";
-		std::cin >> numberOfPokemons;
-	} while ((numberOfPokemons <= 1) || (numberOfPokemons >= 6));
-
-}
-void User::Pick_Pokemon() {
-	std::cout << "Chon Pokemon ra tran: ";
-
+	for (int i = 0; i < this->listPickedPokemons.size(); i++) {
+		std::cout << "(" << i + 1 << ") ";
+		listPickedPokemons[i].ShowName();
+		std::cout << std::endl;
+	}
 }
 
+void User::Pick_Current_Pokemon() {
+
+	std::cout << "Chon Pokemon ra tran: " << std::endl;
+	int indexPickedPokemon;
+	std::cin >> indexPickedPokemon;
+	currentPickedPokemon = listPickedPokemons[indexPickedPokemon - 1];	
+}
+
+void User::GetUsername(std::string userName) {
+
+	this->userName = userName;
+}
+
+void GameManager::GeneratePokedex(std::vector <Pokemon> Pokedex) {
+
+	this->Pokedex = Pokedex;
+}
+
+void GameManager::ShowPokedex() {
+
+	for (int i = 0; i < Pokedex.size(); i++) {
+		std::cout << "(" << i + 1 << ") ";
+		Pokedex[i].ShowName();
+		std::cout << std::endl;
+	}
+}
+
+void GameManager::Run() {
+
+	
+}
