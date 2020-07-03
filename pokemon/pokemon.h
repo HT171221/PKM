@@ -1,7 +1,9 @@
 #pragma once
+#include "move.h"
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 
 enum class BasicType {
 	NORMAL,
@@ -32,9 +34,10 @@ std::ostream& operator << (std::ostream& out, const BasicType type);
 
 std::ostream& operator << (std::ostream& out, const StatusCondition status);
 
+class Move;
 
 class Pokemon {
-public:
+private:
 	std::string pokemonName;
 	int maxHitPoints;
 	int currentHitPoints;
@@ -44,49 +47,89 @@ public:
 	int specialDefense;
 	int speed;
 	bool isAlive;
+	std::vector <Move> moves;
 	BasicType type;
 	StatusCondition statusCondition;
 	void(*effect)(Pokemon&);
-	friend class User;
 
 public:
-	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type);
+	Pokemon();
+	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move> moves);
 	void SetEffect(void (*effect)(Pokemon&));
 	void RunEffect(Pokemon& pokemon);
-	bool CanRunEffect();
+	void ShowPokemonName();
+	void ShowPokemonMoves();
 	void ShowStats();
-	void ShowName();
+	void TakeDamage(int hitPoints);
+	bool operator == (const Pokemon& rhs);
+
+	friend class Move;
 	friend class Effect;
 };
 
-class Effect {
+class Venusaur : public Pokemon {
 public:
-
-
+	Venusaur();
 };
 
-class User {
-private:
-	std::string userName;
-	int numberOfPokemons;
-	std::vector <Pokemon> listPickedPokemons;
-	Pokemon currentPickedPokemon;
-
+class Charizard : public Pokemon {
 public:
-	void ShowListPokemon();
-	void Pick_Current_Pokemon();
-	void GetUsername(std::string userName);
-
-	friend class Pokemon;
-	friend class GameManager;
+	Charizard();
 };
 
-class GameManager {
-private:
-	std::vector <Pokemon> Pokedex;
-
+class Blastoise : public Pokemon {
 public:
-	void GeneratePokedex(std::vector <Pokemon> Pokedex);
-	void ShowPokedex();
-	void Run();
+	Blastoise();
 };
+
+class Pikachu : public Pokemon {
+public:
+	Pikachu();
+};
+
+class Walrein : public Pokemon {
+public:
+	Walrein();
+};
+
+class Lucario : public Pokemon {
+public:
+	Lucario();
+};
+
+class Weezing : public Pokemon {
+public:
+	Weezing();
+};
+
+class Dugtrio : public Pokemon {
+public:
+	Dugtrio();
+};
+
+class Pidgeot : public Pokemon {
+public:
+	Pidgeot();
+};
+
+class Alakazam : public Pokemon {
+public:
+	Alakazam();
+};
+
+class Scyther : public Pokemon {
+public:
+	Scyther();
+};
+
+class Onix : public Pokemon {
+public:
+	Onix();
+};
+
+//class Effect {
+//public:
+//	//inline void Sleep
+//
+//};
+

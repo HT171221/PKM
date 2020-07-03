@@ -123,10 +123,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gamelogic.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="move.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="pokemon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gamelogic.h" />
+    <ClInclude Include="move.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="pokemon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
