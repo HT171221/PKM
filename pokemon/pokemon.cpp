@@ -69,16 +69,10 @@ Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defe
 	this->specialAttack = specialAttack;
 	this->specialDefense = specialDefense;
 	this->speed = speed;
-	this->isAlive = true;
 	this->type = type;
 	this->statusCondition = StatusCondition::NORMAL;
-	this->effect = NULL;
 	this->moves = moves;
 }
-
-void Pokemon::SetEffect(void (*effect)(Pokemon&)) { this->effect = effect; }
-
-void Pokemon::RunEffect(Pokemon& pokemon) { effect(*this); }
 
 void Pokemon::ShowPokemonName() {
 
@@ -103,19 +97,56 @@ void Pokemon::ShowStats() {
 	std::cout << "Status: " << this->statusCondition << std::endl;
 }
 
-void Pokemon::TakeDamage(int hitPoints) {
+void Pokemon::Attack(Move move, Pokemon& target) {
 
-	if (this->currentHitPoints - hitPoints < 0) {
-		this->currentHitPoints = 0;
-		this->isAlive = false;
+	std::cout << this->pokemonName << " used " << move.moveName << " on " << target.pokemonName << "!" << std::endl;
+	if (move.category == CategoryMove::PHYSICAL || move.category == CategoryMove::SPECIAL) {
+		move.DealDamage(*this, target);
 	}
-	else
-		this->currentHitPoints -= hitPoints;
+	else if (move.category == CategoryMove::STATUS) {
+		move.DealEffect(*this, target);
+	}
 }
 
-bool Pokemon::operator==(const Pokemon& rhs) {
-	
-	return this->pokemonName == rhs.pokemonName;
+void Pokemon::TakeDamage(int damage) {
+
+	this->currentHitPoints -= damage;
+	std::cout << this->pokemonName << " took " << damage << " damage!" << std::endl;
+	if (this->currentHitPoints<= 0)
+		std::cout << this->pokemonName << " has fainted!" << std::endl;
+	else
+		std::cout << this->pokemonName << " has " << this->currentHitPoints << " HP left" << std::endl;
+
+}
+
+void Pokemon::RaiseStat(std::string stat, int value) {
+
+	if (stat == "attack") { this->attack += value; }
+	else if (stat == "defense") { this->defense += value; }
+	else if (stat == "specialAttack") { this->specialAttack += value; }
+	else if (stat == "specialDefense") { this->specialDefense += value; }
+	else if (stat == "speed") { this->speed += value; }
+	std::cout << "Raised " << this->pokemonName << "'s " << stat << " by " << value << "." << std::endl;
+}
+
+void Pokemon::LowerStat(std::string stat, int value) {
+
+	if (stat == "attack") { this->attack -= value; }
+	else if (stat == "defense") { this->defense -= value; }
+	else if (stat == "specialAttack") { this->specialAttack -= value; }
+	else if (stat == "specialDefense") { this->specialDefense -= value; }
+	else if (stat == "speed") { this->speed -= value; }
+	std::cout << "Lowered " << this->pokemonName << "'s " << stat << " by " << value << "." << std::endl;
+
+}
+
+bool Pokemon::CanAttack() {
+	return 1;
+}
+
+bool Pokemon::IsAlive() {
+
+	return this->currentHitPoints > 0;
 }
 
 Venusaur::Venusaur() : Pokemon(
@@ -187,7 +218,7 @@ Lucario::Lucario() : Pokemon(
 	262,
 	306,
 	BasicType::FIGHTING,
-	{ QuickAttack(), SwordsDance(), PoweUpPunch(), VacuumWave() }
+	{ QuickAttack(), SwordsDance(), PowerUpPunch(), VacuumWave() }
 ) {}
 
 Weezing::Weezing() : Pokemon(

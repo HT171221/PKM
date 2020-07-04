@@ -13,6 +13,6 @@ public:
 	void SetPlayerName(std::string playerName);
 	void SetNumberOfPokemons(int numberOfPokemons);
 	void ShowListPokemons();
-	void ChoseCurrentPokemon(int indexPokemon);
+	void ChoseCurrentPokemon();
 	friend class GameManager;
 };

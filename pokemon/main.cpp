@@ -5,13 +5,15 @@
 
 int main() {
 	
-	Player player1;
-	Player player2;
-	GameManager gamePokemon;
-	gamePokemon.Setup(player1, player2);
-	player1.ShowListPokemons();
-	player2.ShowListPokemons();
-	gamePokemon.Run(player1, player2);
+	//Player player1;
+	//Player player2;
+	//GameManager gamePokemon;
+	//gamePokemon.Setup(player1, player2);
+	//gamePokemon.Run(player1, player2);
+	Venusaur p1;
+	Charizard p2;
+	SleepPowder skill;
+	p1.Attack(skill, p2);
 
 	return 0;
 }

@@ -20,7 +20,11 @@ void Player::ShowListPokemons() {
 	}
 }
 
-void Player::ChoseCurrentPokemon(int indexPokemon) {
+void Player::ChoseCurrentPokemon() {
 	
-	this->currentPickedPokemon = this->listPickedPokemons[indexPokemon];
+	int indexPokemon;
+	this->ShowListPokemons();
+	std::cout << this->playerName << std::endl << "Chose Pokemon: ";
+	std::cin >> indexPokemon;
+	this->currentPickedPokemon = this->listPickedPokemons[indexPokemon - 1];
 }

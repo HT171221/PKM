@@ -16,15 +16,19 @@ private:
 	std::string moveName;
 	int power;
 	int accuracy;
+	int priority;
 	BasicType type;
 	CategoryMove category;
 
 public:
-	Move(std::string moveName, int power, int accuracy, BasicType type, CategoryMove category);
-	void ShowMoveName();
-	bool RandomProbabilityGenerator(int probability);
+	Move(std::string moveName, int power, int accuracy, int priority, BasicType type, CategoryMove category);
+	bool RandomProbabilityGenerator(float probability);
 	int RandomNumberGenerator(int minNumber, int maxNumber);
-	virtual void Effect(Pokemon* pokemonAttacked, Pokemon* PokemonBeAttaked);
+	virtual void DealDamage(Pokemon attacker, Pokemon& target, float criticalChance = (float)1 / 24);
+	virtual void DealEffect(Pokemon attaker, Pokemon& target);
+	void ShowMoveName();
+
+	friend class Pokemon;
 };
 
 class Tackle : public Move {
@@ -35,18 +39,19 @@ public:
 class SleepPowder : public Move {
 public:
 	SleepPowder();
-	//void Effect(Pokemon& pokemonAttacked, Pokemon& PokemonBeAttaked) override;
+	void DealEffect(Pokemon attaker, Pokemon& target) override;
 };
 
 class MagicalLeaf : public Move {
 public:
+
 	MagicalLeaf();
 };
 
 class RazorLeaf : public Move {
 public:
 	RazorLeaf();
-	//
+	void DealDamage(Pokemon attacker, Pokemon& target, float criticalChance = (float)1 / 8) override;
 };
 
 class Scratch : public Move {
@@ -142,9 +147,9 @@ public:
 };
 //
 
-class PoweUpPunch : public Move {
+class PowerUpPunch : public Move {
 public:
-	PoweUpPunch();
+	PowerUpPunch();
 };
 //
 

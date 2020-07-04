@@ -65,7 +65,13 @@ void GameManager::Setup(Player& player1, Player& player2) {
 void GameManager::Run(Player& player1, Player& player2) {
 
 	while (player1.numberOfPokemons > 0 && player2.numberOfPokemons > 0) {
-		//...
+		if (!player1.currentPickedPokemon.IsAlive())
+			player1.ChoseCurrentPokemon();
+		system("cls");
+		if (!player2.currentPickedPokemon.IsAlive())
+			player2.ChoseCurrentPokemon();
+
+
 	}
 
 	system("cls");

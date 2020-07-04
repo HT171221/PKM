@@ -46,22 +46,22 @@ private:
 	int specialAttack;
 	int specialDefense;
 	int speed;
-	bool isAlive;
 	std::vector <Move> moves;
 	BasicType type;
 	StatusCondition statusCondition;
-	void(*effect)(Pokemon&);
 
 public:
 	Pokemon();
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move> moves);
-	void SetEffect(void (*effect)(Pokemon&));
-	void RunEffect(Pokemon& pokemon);
 	void ShowPokemonName();
 	void ShowPokemonMoves();
 	void ShowStats();
-	void TakeDamage(int hitPoints);
-	bool operator == (const Pokemon& rhs);
+	void Attack(Move move, Pokemon& target);
+	void TakeDamage(int damage);
+	void RaiseStat(std::string stat, int value);
+	void LowerStat(std::string stat, int value);
+	bool CanAttack();
+	bool IsAlive();
 
 	friend class Move;
 	friend class Effect;
@@ -126,10 +126,4 @@ class Onix : public Pokemon {
 public:
 	Onix();
 };
-
-//class Effect {
-//public:
-//	//inline void Sleep
-//
-//};
 
