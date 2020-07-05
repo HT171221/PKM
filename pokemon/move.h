@@ -1,8 +1,13 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <vector>
+
+// Sử sụng Forward Declaration do không thể include 2 file header với nhau
+
+// Forward Declaration để sử dụng enum class BasicType trong file pokemon.h
 enum class BasicType;
 
+// 3 loại cơ bản của Move
 enum class CategoryMove {
 
 	PHYSICAL,
@@ -10,10 +15,12 @@ enum class CategoryMove {
 	STATUS
 };
 
+// Forward Declaretion để sử dụng class Pokemon trong file pokemon.h
 class Pokemon;
 
 class Move {
 protected:
+	// Chỉ số Move
 	std::string moveName;
 	int power;
 	int accuracy;
@@ -24,16 +31,23 @@ protected:
 public:
 	Move();
 	Move(std::string moveName, int power, int accuracy, int priority, BasicType type, CategoryMove category);
+	// Sinh biến bool ngẫu nhiên theo xác suất
 	static bool RandomProbabilityGenerator(float probability);
+	// Sinh số ngẫu nhiên từ minNumber đến maxNumber
 	static int RandomNumberGenerator(int minNumber, int maxNumber);
+	// Sử sụng virtual function do có những move sẽ có những cách tính khác nhau
+	// DealDamage và DealEffect sẽ được gọi bởi Pokemon::attack
 	virtual void DealDamage(Pokemon* attacker, Pokemon* target, float criticalChance = (float)1 / 24);
 	virtual void DealEffect(Pokemon* attaker, Pokemon* target);
+	// Khả năng thực hiện move dựa trên chỉ số accuracy
 	bool CanAttack(Pokemon* attacker, float probability);
 
 	friend class Pokemon;
 	friend class GameManager;
 };
 
+// Khai báo các class con kế thừa class Move
+// Tái định nghĩa lại method trong class Move qua từ khoá override
 class Tackle : public Move {
 public:
 	Tackle();

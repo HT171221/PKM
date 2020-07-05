@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 #include "move.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <ctime>
 
+// 12 BasicType cơ bản + Normal
 enum class BasicType {
 	NORMAL,
 	FIRE,
@@ -21,6 +22,7 @@ enum class BasicType {
 	ROCK
 };
 
+// 5 Status + Normal
 enum class StatusCondition {
 	NORMAL,
 	BURN,
@@ -30,14 +32,9 @@ enum class StatusCondition {
 	SLEEP
 };
 
-std::ostream& operator << (std::ostream& out, const BasicType type);
-
-std::ostream& operator << (std::ostream& out, const StatusCondition status);
-
-class Move;
-
 class Pokemon {
 private:
+	// Chỉ số Pokemon
 	std::string pokemonName;
 	int maxHitPoints;
 	int currentHitPoints;
@@ -53,25 +50,28 @@ private:
 	StatusCondition statusCondition;
 
 public:
+	// Default constructor
 	Pokemon();
-	Pokemon(Pokemon& pokemon);
-	~Pokemon();
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move*> moves);
-	void ShowPokemonMoves();
-	void Attack(Move* move, Pokemon* target);
-	void TakeDamage(int damage);
-	void TakeEffect(std::string effect);
-	void RaiseStat(std::string stat, int value);
-	void LowerStat(std::string stat, int value);
-	bool CanAttack();
-	bool IsAlive();
+	// Copy constructor
+	Pokemon(Pokemon& pokemon);
+	// Destructor
+	~Pokemon();
+	void ShowPokemonMoves(); // Hiện 4 move của Pokemon
+	void Attack(Move* move, Pokemon* target); // Thực hiện đòn đánh
+	void TakeDamage(int damage); // Nhận damage
+	void TakeEffect(std::string effect); // Nhận effect
+	void RaiseStat(std::string stat, int value); // Tăng chỉ số
+	void LowerStat(std::string stat, int value); // Giảm chỉ số
+	bool CanAttack(); // Khả năng thực hiện đòn đánh dựa trên effect
+	bool IsFainted(); // Kiểm tra trạng thái 
 
 	friend class Move;
-	friend class Effect;
 	friend class GameManager;
 	friend class Player;
 };
 
+// Khai báo các class con kế thừa class Pokemon
 class Venusaur : public Pokemon {
 public:
 	Venusaur();

@@ -1,4 +1,4 @@
-#include "pokemon.h"
+﻿#include "pokemon.h"
 #include "move.h"
 
 std::ostream& operator << (std::ostream& out, const BasicType type) {
@@ -57,29 +57,8 @@ std::ostream& operator << (std::ostream& out, const StatusCondition status) {
 	return out << s;
 }
 
+// Default constructor
 Pokemon::Pokemon() = default;
-
-Pokemon::Pokemon(Pokemon& pokemon) {
-	this->pokemonName = pokemon.pokemonName;
-	this->maxHitPoints = pokemon.maxHitPoints;
-	this->currentHitPoints = pokemon.currentHitPoints;
-	this->attack = pokemon.attack;
-	this->defense = pokemon.defense;
-	this->specialAttack = pokemon.specialAttack;
-	this->specialDefense = pokemon.specialDefense;
-	this->speed = pokemon.speed;
-	this->effectTurnsEnd = pokemon.effectTurnsEnd;
-	this->isFlinch = pokemon.isFlinch;
-	this->moves = pokemon.moves;
-	this->type = pokemon.type;
-	this->statusCondition = pokemon.statusCondition;
-}
-
-Pokemon::~Pokemon() {
-
-	for (auto move : this->moves)
-		delete move;
-}
 
 Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move*> moves) {
 
@@ -98,40 +77,73 @@ Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defe
 	this->statusCondition = StatusCondition::NORMAL;
 }
 
+// Copy constructor
+Pokemon::Pokemon(Pokemon& pokemon) {
+	this->pokemonName = pokemon.pokemonName;
+	this->maxHitPoints = pokemon.maxHitPoints;
+	this->currentHitPoints = pokemon.currentHitPoints;
+	this->attack = pokemon.attack;
+	this->defense = pokemon.defense;
+	this->specialAttack = pokemon.specialAttack;
+	this->specialDefense = pokemon.specialDefense;
+	this->speed = pokemon.speed;
+	this->effectTurnsEnd = pokemon.effectTurnsEnd;
+	this->isFlinch = pokemon.isFlinch;
+	this->moves = pokemon.moves;
+	this->type = pokemon.type;
+	this->statusCondition = pokemon.statusCondition;
+}
+
+// Destructor
+Pokemon::~Pokemon() {
+
+	for (auto move : this->moves)
+		delete move;
+}
+
+// Hiện 4 move của Pokemon
 void Pokemon::ShowPokemonMoves() {
 	
 	for (int i = 0; i < this->moves.size(); i++) 
 		std::cout << "(" << i + 1 << ") " << moves[i]->moveName << std::endl;
 }
 
+// Thực hiện đòn đánh
 void Pokemon::Attack(Move* move, Pokemon* target) {
 
+	// MoveCategory PHYSICAL và SPECIAL
 	if (move->category == CategoryMove::PHYSICAL || move->category == CategoryMove::SPECIAL) {
 		std::cout << this->pokemonName << " used " << move->moveName << " on " << target->pokemonName << "!" << std::endl;
 		move->DealDamage(this, target);
 	}
+	// MoveCategory STATUS
 	else if (move->category == CategoryMove::STATUS) {
 		std::cout << this->pokemonName << " used " << move->moveName << "!" << std::endl;
 		move->DealEffect(this, target);
 	}
 }
 
+// Nhận damage
 void Pokemon::TakeDamage(int damage) {
 
+	// 1000 là số damage mặc định cho những Move tự sát
 	if (damage == 1000)
 		damage = this->currentHitPoints;
 	this->currentHitPoints -= damage;
 	std::cout << this->pokemonName << " took " << damage << " damage!" << std::endl;
 	if (this->currentHitPoints<= 0)
-		std::cout << this->pokemonName << " has fainted!" << std::endl;
+		std::cout << this->pokemonName << " has fainted!" << std::endl; // Thông báo ngất
 	else
 		std::cout << this->pokemonName << " has " << this->currentHitPoints << " HP left" << std::endl;
 
 }
 
+// Nhận effect
 void Pokemon::TakeEffect(std::string effect) {
 
+	// Không thể nhận 2 Effect cùng lúc (không tính NORMAL)
 	if (this->statusCondition == StatusCondition::NORMAL) {
+		// Hiệu ứng Burn: Pokemon có type = FIRE không thể bị dính Burn
 		if (effect == "burn") {
 			if (this->type == BasicType::FIRE) {
 				std::cout << this->pokemonName << " is immune to burn!" << std::endl;
@@ -141,6 +153,7 @@ void Pokemon::TakeEffect(std::string effect) {
 				this->statusCondition = StatusCondition::BURN;
 			}
 		}
+		// Hiệu ứng Freeze: Pokemon có type = ICE không thể bị dính Freeze
 		else if (effect == "freeze") {
 			if (this->type == BasicType::ICE) {
 				std::cout << this->pokemonName << " is immune to freeze!" << std::endl;
@@ -150,6 +163,7 @@ void Pokemon::TakeEffect(std::string effect) {
 				this->statusCondition = StatusCondition::FREEZE;
 			}
 		}
+		// Hiệu ứng Paralysis: Pokemon có type = ELECTRIC không thể bị dính Paralysis
 		else if (effect == "paralysis") {
 			if (this->type == BasicType::ELECTRIC) {
 				std::cout << this->pokemonName << " is immune to paralysis!" << std::endl;
@@ -157,9 +171,11 @@ void Pokemon::TakeEffect(std::string effect) {
 			else {
 				std::cout << this->pokemonName << " is paralyzed! It may be unable to move!" << std::endl;
 				this->statusCondition = StatusCondition::PARALYSIS;
+				// Paralysis giảm 1 / 2 speed
 				this->speed /= 2;
 			}
 		}
+		// Hiệu ứng Poison: Pokemon có type = POISON không thể bị dính Poison
 		else if (effect == "poison") {
 			if (this->type == BasicType::POISON) {
 				std::cout << this->pokemonName << " is immune to poison!";
@@ -169,6 +185,7 @@ void Pokemon::TakeEffect(std::string effect) {
 				this->statusCondition = StatusCondition::POISON;
 			}
 		}
+		// Hiệu ứng Sleep: Không thể tấn công trong (random 1 -> 3) turn
 		else if (effect == "sleep") {
 			std::cout << this->pokemonName << " fell asleep!" << std::endl;
 			this->statusCondition = StatusCondition::SLEEP;
@@ -180,6 +197,7 @@ void Pokemon::TakeEffect(std::string effect) {
 	}
 }
 
+// Tăng chỉ số
 void Pokemon::RaiseStat(std::string stat, int value) {
 
 	if (stat == "attack") { this->attack += value; }
@@ -190,6 +208,7 @@ void Pokemon::RaiseStat(std::string stat, int value) {
 	std::cout << "Raised " << this->pokemonName << "'s " << stat << " by " << value << "." << std::endl;
 }
 
+// Giảm chỉ số
 void Pokemon::LowerStat(std::string stat, int value) {
 
 	if (stat == "attack") { this->attack -= value; }
@@ -201,12 +220,15 @@ void Pokemon::LowerStat(std::string stat, int value) {
 
 }
 
+// Khả năng thực hiện đòn đánh dựa trên effect
 bool Pokemon::CanAttack() {
 
+	// Burn: trừ HP = 1/8 MaxHP
 	if (this->statusCondition == StatusCondition::BURN) {
 		std::cout << this->pokemonName << " is hurt by its burn!" << std::endl;
 		this->TakeDamage(this->maxHitPoints / 8);
 	}
+	// Freeze: bỏ turn. Có 20% giải Effect
 	else if (this->statusCondition == StatusCondition::FREEZE) {
 		if (Move::RandomProbabilityGenerator(float(20) / 100)) {
 			std::cout << this->pokemonName << " was defrosted!" << std::endl;
@@ -217,16 +239,19 @@ bool Pokemon::CanAttack() {
 			return false;
 		}
 	}
+	// Paralysis: 25% bỏ turn
 	else if (this->statusCondition == StatusCondition::PARALYSIS) {
 		if (Move::RandomProbabilityGenerator(float(25) / 100)) {
 			std::cout << this->pokemonName << " is fully paralyzed!" << std::endl;
 			return false;
 		}
 	}
+	// Poison: trừ HP = 1/8 MaxHP
 	else if (this->statusCondition == StatusCondition::POISON) {
 		std::cout << this->pokemonName << " is hurt by poison!" << std::endl;
 		this->TakeDamage(this->maxHitPoints / 8);
 	}
+	// Sleep: bỏ turn. Sau (random 1 -> 3) turn sẽ giải Effect
 	else if (this->statusCondition == StatusCondition::SLEEP) {
 		if (this->effectTurnsEnd == 0) {
 			std::cout << this->pokemonName << " is woke up." << std::endl;
@@ -240,19 +265,23 @@ bool Pokemon::CanAttack() {
 		}
 	}
 
+	// Flinch: bỏ lượt
 	if (this->isFlinch) {
 		std::cout << this->pokemonName << " flinched and couldn't move!" << std::endl;
 		return false;
 	}
 
+	// HP <= 0 không thể tấn công
 	if (this->currentHitPoints <= 0)
 		return false;
 
 	return true;
 }
 
-bool Pokemon::IsAlive() {
+// Kiểm tra trạng thái 
+bool Pokemon::IsFainted() {
 
+	// NULL khi chưa chọn Pokemon (xem thêm tại GameManager::Run)
 	if (this == NULL)
 		return false;
 	else

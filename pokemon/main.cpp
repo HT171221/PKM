@@ -11,5 +11,6 @@ int main() {
 	gamePokemon->Setup(player1, player2);
 	gamePokemon->Run(player1, player2);
 
+	delete player1, player2, gamePokemon;
 	return 0;
 }

@@ -1,6 +1,7 @@
-#include "move.h"
+﻿#include "move.h"
 #include "pokemon.h"
 
+// default constructor
 Move::Move() = default;
 
 Move::Move(std::string moveName, int power, int accuracy, int priority, BasicType type, CategoryMove category) {
@@ -13,6 +14,7 @@ Move::Move(std::string moveName, int power, int accuracy, int priority, BasicTyp
 	this->category = category;
 }
 
+// Sinh biến bool ngẫu nhiên theo xác suất
 bool Move::RandomProbabilityGenerator(float probability) {
 
 	std::vector <float> random;
@@ -22,18 +24,32 @@ bool Move::RandomProbabilityGenerator(float probability) {
 	return  random[Move::RandomNumberGenerator(1, 99)] >= 1 - probability;
 }
 
+// Sinh số ngẫu nhiên từ minNumber đến maxNumber
 int Move::RandomNumberGenerator(int minNumber, int maxNumber) {
 
 	srand((time(0)));
 	return minNumber + rand() % (maxNumber + 1 - minNumber);
 }
 
-// typeVar = Critical * random * stab * type * Burn
+// Move gây Damage
 void Move::DealDamage(Pokemon* attacker, Pokemon* target, float criticalChance) {
 	
+	// Tính khả năng thực hiện move
 	if (!this->CanAttack(attacker, (float)this->accuracy / 100)) {
 		return;
 	}
+
+	// Công thức tính damage
+	// damage = ((((((2 * Level) / 5) + 2) * Power * (Attack / Defense)) / 50) + 2) * Modifier
+	// Attack của Pokemon tấn công, Defense của Pokemon bị tấn công
+	// Attack = Pokemon::attck, Defense = Pokemon::defense nếu CategoryMove = PHYSIC
+	// Attack = Pokemon::specialAttack, Defense = Pokemon::specialDefense nếu CategoryMove = SPECIAL
+	// Modifier = Critical * Random * Stab * Type * Burn
+	// Critical = 1.5. Tỉ lệ Crit mặc định là 1 / 24
+	// Random 0.85 -> 1
+	// Stab mặc định là 1. Nếu BasicType của move = BasicType của Pokemon tấn công thì = 1.5
+	// Type (Bảng công thức trong file báo cáo)
+	// Nếu Pokemon tấn công dính effect burn thì Burn = 0.5 nếu không = 1
 
 	int damage;
 	float modifier;
@@ -41,7 +57,7 @@ void Move::DealDamage(Pokemon* attacker, Pokemon* target, float criticalChance) 
 	float critical;
 	float stab;
 	float burn;
-	float random = (float)this->RandomNumberGenerator(85, 100) / 100;
+	float random = (float)this->RandomNumberGenerator(85, 100) / 100; // Tạo số random 0.85 -> 1
 
 	if (this->RandomProbabilityGenerator(criticalChance)) {
 		std::cout << "A critical hit" << std::endl;
@@ -210,12 +226,17 @@ void Move::DealDamage(Pokemon* attacker, Pokemon* target, float criticalChance) 
 		}
 	}
 
+	// Pokemon bị tấn công nhận damage
 	target->TakeDamage(damage);
+	
+	// Thực hiện Effect của đòn đánh PHYSIC và SPECIAL
 	DealEffect(attacker, target);
 }
 
+// default declaration: do nothing
 void Move::DealEffect(Pokemon* attacker, Pokemon* target) {}
 
+// Tính xác suất đánh trúng
 bool Move::CanAttack(Pokemon* attacker, float probability) {
 
 	if (this->RandomProbabilityGenerator(probability)) {
@@ -226,6 +247,10 @@ bool Move::CanAttack(Pokemon* attacker, float probability) {
 		return false;
 	}
 }
+
+// Override  
+// Đối với DealDamage: thay đổi critical chance
+// Đối với DealEffect: Move gây effect hoắc tăng giảm stat của Pokemon
 
 Tackle::Tackle() : Move(
 	"Tackle",
