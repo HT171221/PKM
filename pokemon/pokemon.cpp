@@ -1,62 +1,6 @@
 ﻿#include "pokemon.h"
 #include "move.h"
 
-std::ostream& operator << (std::ostream& out, const BasicType type) {
-
-	std::string s = "";
-	switch (type) {
-	case BasicType::NORMAL:
-		s = "NORMAL"; break;
-	case BasicType::FIRE:
-		s = "FIRE"; break;
-	case BasicType::WATER:
-		s = "WATER"; break;
-	case BasicType::ELECTRIC:
-		s = "ELECTRIC"; break;
-	case BasicType::GRASS:
-		s = "GRASS"; break;
-	case BasicType::ICE:
-		s = "ICE"; break;
-	case BasicType::FIGHTING:
-		s = "FIGHTING"; break;
-	case BasicType::POISON:
-		s = "POISON"; break;
-	case BasicType::GROUND:
-		s = "GROUND"; break;
-	case BasicType::FLYING:
-		s = "FLYING"; break;
-	case BasicType::PSYCHIC:
-		s = "PSYCHIC"; break;
-	case BasicType::BUG:
-		s = "BUG"; break;
-	case BasicType::ROCK:
-		s = "ROCK"; break;
-	}
-
-	return out << s;
-}
-
-std::ostream& operator << (std::ostream& out, const StatusCondition status) {
-
-	std::string s = "";
-	switch (status) {
-	case StatusCondition::NORMAL:
-		s = "NORMAL"; break;
-	case StatusCondition::BURN:
-		s = "BURN"; break;
-	case StatusCondition::FREEZE:
-		s = "FREEZE"; break;
-	case StatusCondition::PARALYSIS:
-		s = "PARALYSIS"; break;
-	case StatusCondition::POISON:
-		s = "POISON"; break;
-	case StatusCondition::SLEEP:
-		s = "SLEEP"; break;
-	}
-
-	return out << s;
-}
-
 // Default constructor
 Pokemon::Pokemon() = default;
 
