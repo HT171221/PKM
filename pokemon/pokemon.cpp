@@ -69,14 +69,11 @@ Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defe
 	this->specialAttack = specialAttack;
 	this->specialDefense = specialDefense;
 	this->speed = speed;
+	this->effectTurnsEnd = 0;
+	this->isFlinch = false;
+	this->moves = moves;
 	this->type = type;
 	this->statusCondition = StatusCondition::NORMAL;
-	this->moves = moves;
-}
-
-void Pokemon::ShowPokemonName() {
-
-	std::cout << this->pokemonName << std::endl;
 }
 
 void Pokemon::ShowPokemonMoves() {
@@ -97,13 +94,14 @@ void Pokemon::ShowStats() {
 	std::cout << "Status: " << this->statusCondition << std::endl;
 }
 
-void Pokemon::Attack(Move move, Pokemon& target) {
+void Pokemon::Attack(Move& move, Pokemon& target) {
 
-	std::cout << this->pokemonName << " used " << move.moveName << " on " << target.pokemonName << "!" << std::endl;
 	if (move.category == CategoryMove::PHYSICAL || move.category == CategoryMove::SPECIAL) {
+		std::cout << this->pokemonName << " used " << move.moveName << " on " << target.pokemonName << "!" << std::endl;
 		move.DealDamage(*this, target);
 	}
 	else if (move.category == CategoryMove::STATUS) {
+		std::cout << this->pokemonName << " used " << move.moveName << "!" << std::endl;
 		move.DealEffect(*this, target);
 	}
 }
@@ -117,6 +115,56 @@ void Pokemon::TakeDamage(int damage) {
 	else
 		std::cout << this->pokemonName << " has " << this->currentHitPoints << " HP left" << std::endl;
 
+}
+
+void Pokemon::TakeEffect(std::string effect) {
+
+	if (this->statusCondition == StatusCondition::NORMAL) {
+		if (effect == "burn") {
+			if (this->type == BasicType::FIRE) {
+				std::cout << this->pokemonName << " is immune to burn!" << std::endl;
+			}
+			else {
+				std::cout << this->pokemonName << " was burned!" << std::endl;
+				this->statusCondition = StatusCondition::BURN;
+			}
+		}
+		else if (effect == "freeze") {
+			if (this->type == BasicType::ICE) {
+				std::cout << this->pokemonName << " is immune to freeze!" << std::endl;
+			}
+			else {
+				std::cout << this->pokemonName << " was frozen solid!" << std::endl;
+				this->statusCondition = StatusCondition::FREEZE;
+			}
+		}
+		else if (effect == "paralysis") {
+			if (this->type == BasicType::ELECTRIC) {
+				std::cout << this->pokemonName << " is immune to paralysis!" << std::endl;
+			}
+			else {
+				std::cout << this->pokemonName << " is paralyzed! It may be unable to move!" << std::endl;
+				this->statusCondition = StatusCondition::PARALYSIS;
+			}
+		}
+		else if (effect == "poison") {
+			if (this->type == BasicType::POISON) {
+				std::cout << this->pokemonName << " is immune to poison!";
+			}
+			else {
+				std::cout << this->pokemonName << " was poisoned!" << std::endl;
+				this->statusCondition = StatusCondition::POISON;
+			}
+		}
+		else if (effect == "sleep") {
+			std::cout << this->pokemonName << " fell asleep!" << std::endl;
+			this->statusCondition = StatusCondition::SLEEP;
+			this->effectTurnsEnd = Move::RandomNumberGenerator(1, 3);
+		}
+	}
+	if (effect == "flinch") {
+		this->isFlinch = true;
+	}
 }
 
 void Pokemon::RaiseStat(std::string stat, int value) {
@@ -141,7 +189,49 @@ void Pokemon::LowerStat(std::string stat, int value) {
 }
 
 bool Pokemon::CanAttack() {
-	return 1;
+
+	if (this->statusCondition == StatusCondition::BURN) {
+		std::cout << this->pokemonName << " is hurt by its burn!" << std::endl;
+		this->TakeDamage(this->maxHitPoints / 8);
+	}
+	else if (this->statusCondition == StatusCondition::FREEZE) {
+		if (Move::RandomProbabilityGenerator(float(20) / 100)) {
+			std::cout << this->pokemonName << " was defrosted!" << std::endl;
+			this->statusCondition == StatusCondition::NORMAL;
+		}
+		else {
+			std::cout << this->pokemonName << " is frozen solid!";
+			return false;
+		}
+	}
+	else if (this->statusCondition == StatusCondition::PARALYSIS) {
+		if (Move::RandomProbabilityGenerator(float(25) / 100)) {
+			std::cout << this->pokemonName << " is fully paralyzed!" << std::endl;
+			return false;
+		}
+	}
+	else if (this->statusCondition == StatusCondition::POISON) {
+		std::cout << this->pokemonName << " is hurt by poison!" << std::endl;
+		this->TakeDamage(this->maxHitPoints / 8);
+	}
+	else if (this->statusCondition == StatusCondition::SLEEP) {
+		if (this->effectTurnsEnd == 0) {
+			std::cout << this->pokemonName << " is woke up." << std::endl;
+			this->statusCondition == StatusCondition::NORMAL;
+		}
+		else {
+			std::cout << this->pokemonName << " is fast asleep." << std::endl;
+			this->effectTurnsEnd -= 1;
+			return false;
+		}
+	}
+
+	if (this->isFlinch) {
+		std::cout << this->pokemonName << " flinched and couldn't move!" << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 bool Pokemon::IsAlive() {
@@ -278,7 +368,7 @@ Scyther::Scyther() : Pokemon(
 	284,
 	339,
 	BasicType::BUG,
-	{ QuickAttack(), Leer(), FuryCutter(), BugBuzz() }
+	{ QuickAttack(), Leer(), XScissor(), BugBuzz() }
 ) {}
 
 Onix::Onix() : Pokemon(

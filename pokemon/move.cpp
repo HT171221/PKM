@@ -1,5 +1,8 @@
 #include "move.h"
 #include "pokemon.h"
+
+Move::Move() = default;
+
 Move::Move(std::string moveName, int power, int accuracy, int priority, BasicType type, CategoryMove category) {
 
 	this->moveName = moveName;
@@ -12,20 +15,23 @@ Move::Move(std::string moveName, int power, int accuracy, int priority, BasicTyp
 
 bool Move::RandomProbabilityGenerator(float probability) {
 
-	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX) >= 1 - probability;
+	std::vector <float> random;
+	srand(time(0));
+	for (int i = 0; i < 100; i++)
+		random.push_back((float)(rand()) / (float)(RAND_MAX));
+	return  random[Move::RandomNumberGenerator(1, 99)] >= 1 - probability;
 }
 
 int Move::RandomNumberGenerator(int minNumber, int maxNumber) {
 
-	srand(time(0));
+	srand((time(0)));
 	return minNumber + rand() % (maxNumber + 1 - minNumber);
 }
 
 // typeVar = Critical * random * stab * type * Burn
-void Move::DealDamage(Pokemon attacker, Pokemon& target, float criticalChance) {
+void Move::DealDamage(Pokemon& attacker, Pokemon& target, float criticalChance) {
 	
-	if (RandomProbabilityGenerator((float)this->accuracy / 100)) {
-		std::cout << attacker.pokemonName << "'s attack missed!" << std::endl;
+	if (!this->CanAttack(attacker, (float)this->accuracy / 100)) {
 		return;
 	}
 
@@ -37,7 +43,8 @@ void Move::DealDamage(Pokemon attacker, Pokemon& target, float criticalChance) {
 	float burn;
 	float random = (float)this->RandomNumberGenerator(85, 100) / 100;
 
-	if (RandomProbabilityGenerator(criticalChance)) {
+	if (this->RandomProbabilityGenerator(criticalChance)) {
+		std::cout << "A critical hit" << std::endl;
 		critical = 1.5;
 	}
 	else {
@@ -207,11 +214,22 @@ void Move::DealDamage(Pokemon attacker, Pokemon& target, float criticalChance) {
 	DealEffect(attacker, target);
 }
 
-void Move::DealEffect(Pokemon attacker, Pokemon& target) {};
+void Move::DealEffect(Pokemon& attacker, Pokemon& target) {}
 
 void Move::ShowMoveName() {
 
 	std::cout << this->moveName << std::endl;
+}
+
+bool Move::CanAttack(Pokemon& attacker, float probability) {
+
+	if (this->RandomProbabilityGenerator(probability)) {
+		return true;
+	}
+	else {
+		std::cout << attacker.pokemonName << "'s attack missed!" << std::endl;
+		return false;
+	}
 }
 
 Tackle::Tackle() : Move(
@@ -232,8 +250,10 @@ SleepPowder::SleepPowder() : Move(
 	CategoryMove::STATUS
 ) {}
 
-void SleepPowder::DealEffect(Pokemon attaker, Pokemon& target) {
-	target.LowerStat("attack", 30);
+void SleepPowder::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->CanAttack(attacker, (float)this->accuracy / 100)) 
+		target.TakeEffect("sleep");
 }
 
 MagicalLeaf::MagicalLeaf() : Move(
@@ -253,11 +273,10 @@ RazorLeaf::RazorLeaf() : Move(
 	BasicType::GRASS,
 	CategoryMove::PHYSICAL
 ) {}
-//
 
-void RazorLeaf::DealDamage(Pokemon attacker, Pokemon& target, float criticalChance) {
+void RazorLeaf::DealDamage(Pokemon& attacker, Pokemon& target, float criticalChance) {
 
-	Move::DealDamage(attacker, target, criticalChance);
+	Move::DealDamage(attacker, target, (float)1 / 8);
 }
 
 Scratch::Scratch() : Move(
@@ -277,7 +296,13 @@ WillOWisp::WillOWisp() : Move(
 	BasicType::FIRE,
 	CategoryMove::STATUS
 ) {}
-//
+
+void WillOWisp::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->CanAttack(attacker, (float)this->accuracy / 100)) 
+		target.TakeEffect("burn");
+}
+
 
 FireFang::FireFang() : Move(
 	"Fire Fang",
@@ -287,7 +312,13 @@ FireFang::FireFang() : Move(
 	BasicType::FIRE,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void FireFang::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)10 / 100)) 
+		target.TakeEffect("burn");
+
+}
 
 FlameThrower::FlameThrower() : Move(
 	"Flamethrower",
@@ -297,7 +328,12 @@ FlameThrower::FlameThrower() : Move(
 	BasicType::FIRE,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void FlameThrower::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)10 / 100)) 
+		target.TakeEffect("burn");
+}
 
 Withdraw::Withdraw() : Move(
 	"Withdraw",
@@ -307,7 +343,11 @@ Withdraw::Withdraw() : Move(
 	BasicType::WATER,
 	CategoryMove::STATUS
 ) {}
-//
+
+void Withdraw::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("defense", 20);
+}
 
 AquaTail::AquaTail() : Move(
 	"Aqua Tail",
@@ -335,7 +375,6 @@ QuickAttack::QuickAttack() : Move(
 	BasicType::NORMAL,
 	CategoryMove::PHYSICAL
 ) {}
-//
 
 ThunderWave::ThunderWave() : Move(
 	"Thunder Wave",
@@ -345,7 +384,13 @@ ThunderWave::ThunderWave() : Move(
 	BasicType::ELECTRIC,
 	CategoryMove::STATUS
 ) {}
-//
+
+void ThunderWave::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->CanAttack(attacker, (float)this->accuracy / 100)) 
+		target.TakeEffect("paralysis");
+}
+
 
 Spark::Spark() : Move(
 	"Spark",
@@ -355,7 +400,12 @@ Spark::Spark() : Move(
 	BasicType::ELECTRIC,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void Spark::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)30 / 100)) 
+		target.TakeEffect("paralysis");
+}
 
 Thunderbolt::Thunderbolt() : Move(
 	"Thunderbolt",
@@ -365,7 +415,12 @@ Thunderbolt::Thunderbolt() : Move(
 	BasicType::ELECTRIC,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void Thunderbolt::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)10 / 100))
+		target.TakeEffect("paralysis");
+}
 
 BodySlam::BodySlam() : Move(
 	"Body Slam",
@@ -375,7 +430,12 @@ BodySlam::BodySlam() : Move(
 	BasicType::NORMAL,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void BodySlam::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)30 / 100)) 
+		target.TakeEffect("paralysis");
+}
 
 DefenseCurl::DefenseCurl() : Move(
 	"Defense Curl",
@@ -385,7 +445,11 @@ DefenseCurl::DefenseCurl() : Move(
 	BasicType::NORMAL,
 	CategoryMove::STATUS
 ) {}
-//
+
+void DefenseCurl::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("defense", 20);
+}
 
 IceFang::IceFang() : Move(
 	"Ice Fang",
@@ -395,7 +459,15 @@ IceFang::IceFang() : Move(
 	BasicType::ICE,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void IceFang::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)10 / 100)) 
+		target.TakeEffect("ice");
+
+	if (!this->RandomProbabilityGenerator((float)10 / 100))
+		target.TakeEffect("flinch");
+}
 
 IceBeam::IceBeam() : Move(
 	"Ice Beam",
@@ -405,7 +477,12 @@ IceBeam::IceBeam() : Move(
 	BasicType::ICE,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void IceBeam::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (!this->RandomProbabilityGenerator((float)10 / 100)) 
+		target.TakeEffect("ice");
+}
 
 SwordsDance::SwordsDance() : Move(
 	"Swords Dance",
@@ -415,7 +492,11 @@ SwordsDance::SwordsDance() : Move(
 	BasicType::NORMAL,
 	CategoryMove::STATUS
 ) {}
-//
+
+void SwordsDance::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("attack", 20);
+}
 
 PowerUpPunch::PowerUpPunch() : Move(
 	"Power-Up Punch",
@@ -425,7 +506,11 @@ PowerUpPunch::PowerUpPunch() : Move(
 	BasicType::FIGHTING,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void PowerUpPunch::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("attack", 20);
+}
 
 VacuumWave::VacuumWave() : Move(
 	"Vacuum Wave",
@@ -435,7 +520,6 @@ VacuumWave::VacuumWave() : Move(
 	BasicType::FIGHTING,
 	CategoryMove::SPECIAL
 ) {}
-//
 
 PoisonGas::PoisonGas() : Move(
 	"Poison Gas",
@@ -445,7 +529,12 @@ PoisonGas::PoisonGas() : Move(
 	BasicType::POISON,
 	CategoryMove::STATUS
 ) {}
-//
+
+void PoisonGas::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->CanAttack(attacker, (float)this->accuracy / 100))
+		target.TakeEffect("poison");
+}
 
 SelfDestruct::SelfDestruct() : Move(
 	"Self-Destruct",
@@ -455,7 +544,11 @@ SelfDestruct::SelfDestruct() : Move(
 	BasicType::NORMAL,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void SelfDestruct::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.TakeDamage(1000);
+}
 
 Sludge::Sludge() : Move(
 	"Sludge",
@@ -465,7 +558,12 @@ Sludge::Sludge() : Move(
 	BasicType::POISON,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void Sludge::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)30 / 100)) 
+		target.TakeEffect("poison");
+}
 
 Screech::Screech() : Move(
 	"Screech",
@@ -475,7 +573,12 @@ Screech::Screech() : Move(
 	BasicType::NORMAL,
 	CategoryMove::STATUS
 ) {}
-//
+
+void Screech::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->CanAttack(attacker, (float)this->accuracy / 100)) 
+		target.LowerStat("defense", 20);
+}
 
 Bulldoze::Bulldoze() : Move(
 	"Bulldoze",
@@ -485,7 +588,11 @@ Bulldoze::Bulldoze() : Move(
 	BasicType::GROUND,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void Bulldoze::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	target.LowerStat("speed", 20);
+}
 
 EarthPower::EarthPower() : Move(
 	"Earth Power",
@@ -495,7 +602,12 @@ EarthPower::EarthPower() : Move(
 	BasicType::GROUND,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void EarthPower::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)30 / 100))
+		target.LowerStat("defense", 20);
+}
 
 Agility::Agility() : Move(
 	"Agility",
@@ -505,7 +617,11 @@ Agility::Agility() : Move(
 	BasicType::PSYCHIC,
 	CategoryMove::STATUS
 ) {}
-//
+
+void Agility::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("speed", 20);
+}
 
 WingAttack::WingAttack() : Move(
 	"WingAttack",
@@ -524,7 +640,12 @@ AirSlash::AirSlash() : Move(
 	BasicType::FLYING,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void AirSlash::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)30 / 100))
+		target.TakeEffect("flinch");
+}
 
 MegaPunch::MegaPunch() : Move(
 	"Mega Punch",
@@ -543,7 +664,12 @@ CalmMind::CalmMind() : Move(
 	BasicType::PSYCHIC,
 	CategoryMove::STATUS
 ) {}
-//
+
+void CalmMind::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("specialAttack", 20);
+	attacker.RaiseStat("specialDefense", 20);
+}
 
 PsychoCut::PsychoCut() : Move(
 	"Psycho Cut",
@@ -553,7 +679,11 @@ PsychoCut::PsychoCut() : Move(
 	BasicType::PSYCHIC,
 	CategoryMove::PHYSICAL
 ) {}
-//
+
+void PsychoCut::DealDamage(Pokemon& attacker, Pokemon& target, float criticalChance) {
+
+	Move::DealDamage(attacker, target, (float)1 / 8);
+}
 
 Psyshock::Psyshock() : Move(
 	"Psyshock",
@@ -563,7 +693,6 @@ Psyshock::Psyshock() : Move(
 	BasicType::PSYCHIC,
 	CategoryMove::SPECIAL
 ) {}
-//
 
 Leer::Leer() : Move(
 	"Leer",
@@ -573,17 +702,20 @@ Leer::Leer() : Move(
 	BasicType::NORMAL,
 	CategoryMove::STATUS
 ) {}
-//
 
-FuryCutter::FuryCutter() : Move(
-	"Fury Cutter",
-	40,
-	95,
+void Leer::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.LowerStat("defense", 20);
+}
+
+XScissor::XScissor() : Move(
+	"X-Scissor",
+	80,
+	100,
 	0,
 	BasicType::BUG,
 	CategoryMove::PHYSICAL
 ) {}
-//
 
 BugBuzz::BugBuzz() : Move(
 	"Bug Buzz",
@@ -593,7 +725,12 @@ BugBuzz::BugBuzz() : Move(
 	BasicType::BUG,
 	CategoryMove::SPECIAL
 ) {}
-//
+
+void BugBuzz::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	if (this->RandomProbabilityGenerator((float)10 / 100))
+		target.LowerStat("defense", 20);
+}
 
 Harden::Harden() : Move(
 	"Harden",
@@ -603,7 +740,11 @@ Harden::Harden() : Move(
 	BasicType::NORMAL,
 	CategoryMove::STATUS
 ) {}
-//
+
+void Harden::DealEffect(Pokemon& attacker, Pokemon& target) {
+
+	attacker.RaiseStat("defense", 20);
+}
 
 RockThrow::RockThrow() : Move(
 	"Rock Throw",

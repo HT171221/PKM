@@ -46,6 +46,8 @@ private:
 	int specialAttack;
 	int specialDefense;
 	int speed;
+	int effectTurnsEnd;
+	bool isFlinch;
 	std::vector <Move> moves;
 	BasicType type;
 	StatusCondition statusCondition;
@@ -53,11 +55,11 @@ private:
 public:
 	Pokemon();
 	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move> moves);
-	void ShowPokemonName();
 	void ShowPokemonMoves();
 	void ShowStats();
-	void Attack(Move move, Pokemon& target);
+	void Attack(Move& move, Pokemon& target);
 	void TakeDamage(int damage);
+	void TakeEffect(std::string effect);
 	void RaiseStat(std::string stat, int value);
 	void LowerStat(std::string stat, int value);
 	bool CanAttack();
@@ -65,6 +67,8 @@ public:
 
 	friend class Move;
 	friend class Effect;
+	friend class GameManager;
+	friend class Player;
 };
 
 class Venusaur : public Pokemon {

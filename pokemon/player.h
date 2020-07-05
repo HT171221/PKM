@@ -7,6 +7,7 @@ private:
 	int numberOfPokemons;
 	std::vector <Pokemon> listPickedPokemons;
 	Pokemon currentPickedPokemon;
+	Move currentMove;
 
 public:
 	Player();
@@ -14,5 +15,7 @@ public:
 	void SetNumberOfPokemons(int numberOfPokemons);
 	void ShowListPokemons();
 	void ChoseCurrentPokemon();
+	void SelectMove();
+
 	friend class GameManager;
 };
