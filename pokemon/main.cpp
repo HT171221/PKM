@@ -23,5 +23,6 @@
 
 int main() {
 
+	delete player1, player2, gamePokemon;
 	return 0;
 }
