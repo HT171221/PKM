@@ -59,7 +59,29 @@ std::ostream& operator << (std::ostream& out, const StatusCondition status) {
 
 Pokemon::Pokemon() = default;
 
-Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move> moves) {
+Pokemon::Pokemon(Pokemon& pokemon) {
+	this->pokemonName = pokemon.pokemonName;
+	this->maxHitPoints = pokemon.maxHitPoints;
+	this->currentHitPoints = pokemon.currentHitPoints;
+	this->attack = pokemon.attack;
+	this->defense = pokemon.defense;
+	this->specialAttack = pokemon.specialAttack;
+	this->specialDefense = pokemon.specialDefense;
+	this->speed = pokemon.speed;
+	this->effectTurnsEnd = pokemon.effectTurnsEnd;
+	this->isFlinch = pokemon.isFlinch;
+	this->moves = pokemon.moves;
+	this->type = pokemon.type;
+	this->statusCondition = pokemon.statusCondition;
+}
+
+Pokemon::~Pokemon() {
+
+	for (auto move : this->moves)
+		delete move;
+}
+
+Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move*> moves) {
 
 	this->pokemonName = pokemonName;
 	this->maxHitPoints = maxHitPoints;
@@ -78,36 +100,26 @@ Pokemon::Pokemon(std::string pokemonName, int maxHitPoints, int attack, int defe
 
 void Pokemon::ShowPokemonMoves() {
 	
-	for (int i = 0; i < this->moves.size(); i++) {
-		std::cout << "(" << i + 1 << ") ";
-		moves[i].ShowMoveName();
-	}
+	for (int i = 0; i < this->moves.size(); i++) 
+		std::cout << "(" << i + 1 << ") " << moves[i]->moveName << std::endl;
 }
 
-void Pokemon::ShowStats() {
+void Pokemon::Attack(Move* move, Pokemon* target) {
 
-	std::cout << "HP: " << this->currentHitPoints << " / " << this->maxHitPoints << std::endl;
-	std::cout << "Attack: " << this->attack << "\tSpecial Attack: " << this->specialAttack << std::endl;
-	std::cout << "Defense: " << this->defense << "\tSpecial Defense: " << this->specialDefense << std::endl;
-	std::cout << "Speed: " << this->speed << std::endl;
-	std::cout << "Type: " << this->type << std::endl;
-	std::cout << "Status: " << this->statusCondition << std::endl;
-}
-
-void Pokemon::Attack(Move& move, Pokemon& target) {
-
-	if (move.category == CategoryMove::PHYSICAL || move.category == CategoryMove::SPECIAL) {
-		std::cout << this->pokemonName << " used " << move.moveName << " on " << target.pokemonName << "!" << std::endl;
-		move.DealDamage(*this, target);
+	if (move->category == CategoryMove::PHYSICAL || move->category == CategoryMove::SPECIAL) {
+		std::cout << this->pokemonName << " used " << move->moveName << " on " << target->pokemonName << "!" << std::endl;
+		move->DealDamage(this, target);
 	}
-	else if (move.category == CategoryMove::STATUS) {
-		std::cout << this->pokemonName << " used " << move.moveName << "!" << std::endl;
-		move.DealEffect(*this, target);
+	else if (move->category == CategoryMove::STATUS) {
+		std::cout << this->pokemonName << " used " << move->moveName << "!" << std::endl;
+		move->DealEffect(this, target);
 	}
 }
 
 void Pokemon::TakeDamage(int damage) {
 
+	if (damage == 1000)
+		damage = this->currentHitPoints;
 	this->currentHitPoints -= damage;
 	std::cout << this->pokemonName << " took " << damage << " damage!" << std::endl;
 	if (this->currentHitPoints<= 0)
@@ -145,6 +157,7 @@ void Pokemon::TakeEffect(std::string effect) {
 			else {
 				std::cout << this->pokemonName << " is paralyzed! It may be unable to move!" << std::endl;
 				this->statusCondition = StatusCondition::PARALYSIS;
+				this->speed /= 2;
 			}
 		}
 		else if (effect == "poison") {
@@ -218,6 +231,7 @@ bool Pokemon::CanAttack() {
 		if (this->effectTurnsEnd == 0) {
 			std::cout << this->pokemonName << " is woke up." << std::endl;
 			this->statusCondition == StatusCondition::NORMAL;
+			this->effectTurnsEnd -= 1;
 		}
 		else {
 			std::cout << this->pokemonName << " is fast asleep." << std::endl;
@@ -231,12 +245,18 @@ bool Pokemon::CanAttack() {
 		return false;
 	}
 
+	if (this->currentHitPoints <= 0)
+		return false;
+
 	return true;
 }
 
 bool Pokemon::IsAlive() {
 
-	return this->currentHitPoints > 0;
+	if (this == NULL)
+		return false;
+	else
+		return this->currentHitPoints > 0;
 }
 
 Venusaur::Venusaur() : Pokemon(
@@ -248,7 +268,7 @@ Venusaur::Venusaur() : Pokemon(
 	328,
 	284,
 	BasicType::GRASS,
-	{Tackle(), SleepPowder(), MagicalLeaf(), RazorLeaf()}
+	{ new Tackle(), new SleepPowder(), new MagicalLeaf(), new RazorLeaf() }
 ) {}
 
 Charizard::Charizard() : Pokemon(
@@ -260,7 +280,7 @@ Charizard::Charizard() : Pokemon(
 	295,
 	328,
 	BasicType::FIRE,
-	{ Scratch(), WillOWisp(), FireFang(), FlameThrower() }
+	{ new Scratch(), new WillOWisp(), new FireFang(), new FlameThrower() }
 ) {}
 
 Blastoise::Blastoise() : Pokemon(
@@ -272,7 +292,7 @@ Blastoise::Blastoise() : Pokemon(
 	339,
 	280,
 	BasicType::WATER,
-	{ Tackle(), Withdraw(), AquaTail(), WaterGun() }
+	{ new Tackle(), new Withdraw(), new AquaTail(), new WaterGun() }
 ) {}
 
 Pikachu::Pikachu() : Pokemon (
@@ -284,7 +304,7 @@ Pikachu::Pikachu() : Pokemon (
 	284,
 	350,
 	BasicType::ELECTRIC,
-	{ QuickAttack(), ThunderWave(), Spark(), Thunderbolt() }
+	{ new QuickAttack(), new ThunderWave(), new Spark(), new Thunderbolt() }
 ) {}
 
 Walrein::Walrein() : Pokemon(
@@ -296,7 +316,7 @@ Walrein::Walrein() : Pokemon(
 	306,
 	251,
 	BasicType::ICE,
-	{ BodySlam(), DefenseCurl(), IceFang(), IceBeam() }
+	{ new BodySlam(), new DefenseCurl(), new IceFang(), new IceBeam() }
 ) {}
 
 Lucario::Lucario() : Pokemon(
@@ -308,7 +328,7 @@ Lucario::Lucario() : Pokemon(
 	262,
 	306,
 	BasicType::FIGHTING,
-	{ QuickAttack(), SwordsDance(), PowerUpPunch(), VacuumWave() }
+	{ new QuickAttack(), new SwordsDance(), new PowerUpPunch(), new VacuumWave() }
 ) {}
 
 Weezing::Weezing() : Pokemon(
@@ -320,7 +340,7 @@ Weezing::Weezing() : Pokemon(
 	262,
 	240,
 	BasicType::POISON,
-	{ Tackle(), PoisonGas(), SelfDestruct(), Sludge() }
+	{ new Tackle(), new PoisonGas(), new SelfDestruct(), new Sludge() }
 ) {}
 
 Dugtrio::Dugtrio() : Pokemon(
@@ -332,7 +352,7 @@ Dugtrio::Dugtrio() : Pokemon(
 	262,
 	372,
 	BasicType::GROUND,
-	{ Scratch(), Screech(), Bulldoze(), EarthPower() }
+	{ new Scratch(), new Screech(), new Bulldoze(), new EarthPower() }
 ) {}
 
 Pidgeot::Pidgeot() : Pokemon(
@@ -344,7 +364,7 @@ Pidgeot::Pidgeot() : Pokemon(
 	262,
 	331,
 	BasicType::FLYING,
-	{ Tackle(), Agility(), WingAttack(), AirSlash() }
+	{ new Tackle(), new Agility(), new WingAttack(), new AirSlash() }
 ) {}
 
 Alakazam::Alakazam() : Pokemon(
@@ -356,7 +376,7 @@ Alakazam::Alakazam() : Pokemon(
 	317,
 	372,
 	BasicType::PSYCHIC,
-	{ MegaPunch(), CalmMind(), PsychoCut(), Psyshock() }
+	{ new MegaPunch(), new CalmMind(), new PsychoCut(), new Psyshock() }
 ) {}
 
 Scyther::Scyther() : Pokemon(
@@ -368,7 +388,7 @@ Scyther::Scyther() : Pokemon(
 	284,
 	339,
 	BasicType::BUG,
-	{ QuickAttack(), Leer(), XScissor(), BugBuzz() }
+	{ new QuickAttack(), new Leer(), new XScissor(), new BugBuzz() }
 ) {}
 
 Onix::Onix() : Pokemon(
@@ -380,5 +400,5 @@ Onix::Onix() : Pokemon(
 	207,
 	262,
 	BasicType::ROCK,
-	{ Tackle(), Harden(), RockThrow(), PowerGem() }
+	{ new Tackle(), new Harden(), new RockThrow(), new PowerGem() }
 ) {}

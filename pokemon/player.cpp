@@ -15,7 +15,7 @@ void Player::SetNumberOfPokemons(int numberOfPokemons) {
 void Player::ShowListPokemons() {
 
 	for (int i = 0; i < this->listPickedPokemons.size(); i++) 
-		std::cout << "(" << i + 1 << ") " << listPickedPokemons[i].pokemonName << std::endl;
+		std::cout << "(" << i + 1 << ") " << listPickedPokemons[i]->pokemonName << std::endl;
 }
 
 void Player::ChoseCurrentPokemon() {
@@ -31,10 +31,10 @@ void Player::ChoseCurrentPokemon() {
 void Player::SelectMove() {
 
 	int indexMove;
-	std::cout << this->playerName << ". What will " << this->currentPickedPokemon.pokemonName << " do?" << std::endl;
-	this->currentPickedPokemon.ShowPokemonMoves();
+	std::cout << this->playerName << ". What will " << this->currentPickedPokemon->pokemonName << " do?" << std::endl;
+	this->currentPickedPokemon->ShowPokemonMoves();
 	std::cout << "Choose move: ";
 	std::cin >> indexMove;
 
-	this->currentMove = currentPickedPokemon.moves[indexMove - 1];
+	this->currentMove = currentPickedPokemon->moves[indexMove - 1];
 }

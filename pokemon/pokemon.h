@@ -48,16 +48,17 @@ private:
 	int speed;
 	int effectTurnsEnd;
 	bool isFlinch;
-	std::vector <Move> moves;
+	std::vector <Move*> moves;
 	BasicType type;
 	StatusCondition statusCondition;
 
 public:
 	Pokemon();
-	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move> moves);
+	Pokemon(Pokemon& pokemon);
+	~Pokemon();
+	Pokemon(std::string name, int maxHitPoints, int attack, int defense, int specialAttack, int specialDefense, int speed, BasicType type, std::vector <Move*> moves);
 	void ShowPokemonMoves();
-	void ShowStats();
-	void Attack(Move& move, Pokemon& target);
+	void Attack(Move* move, Pokemon* target);
 	void TakeDamage(int damage);
 	void TakeEffect(std::string effect);
 	void RaiseStat(std::string stat, int value);

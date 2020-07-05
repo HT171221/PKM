@@ -5,9 +5,9 @@ class Player {
 private:
 	std::string playerName;
 	int numberOfPokemons;
-	std::vector <Pokemon> listPickedPokemons;
-	Pokemon currentPickedPokemon;
-	Move currentMove;
+	std::vector <Pokemon*> listPickedPokemons;
+	Pokemon* currentPickedPokemon;
+	Move* currentMove;
 
 public:
 	Player();
